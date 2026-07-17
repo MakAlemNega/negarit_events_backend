@@ -11,6 +11,8 @@ import {
   rejectEvent,
   getApprovedEvents,
   getEventById,
+  toggleFavorite,
+  bookTicket,
 } from "../controllers/event.controller.js";
 
 const router = express.Router();
@@ -18,6 +20,10 @@ const router = express.Router();
 // Public
 router.get("/", getApprovedEvents);
 router.get("/:id", getEventById);
+
+// Customer (any authenticated user)
+router.post("/:id/favorite", authenticate, toggleFavorite);
+router.post("/:id/book", authenticate, bookTicket);
 
 // Organizer only
 router.post("/organizer", authenticate, authorize("organizer"), createEvent);

@@ -52,3 +52,18 @@ export async function login(req, res) {
     user: { id: user._id, name: user.name, email: user.email, role: user.role },
   });
 }
+
+export async function getMe(req, res) {
+  const user = await User.findById(req.user.userId);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  res.json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      favorites: user.favorites,
+    },
+  });
+}

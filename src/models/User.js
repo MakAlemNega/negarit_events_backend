@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema(
       enum: ["customer", "organizer", "admin"],
       default: "customer",
     },
+    favorites: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Event",
+      default: [],
+    },
   },
   { timestamps: true },
 ); // adds createdAt/updatedAt automatically

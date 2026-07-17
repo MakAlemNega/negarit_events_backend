@@ -1,7 +1,11 @@
 import Event from "../models/Event.js";
+import Order from "../models/Order.js";
+import User from "../models/User.js";
 import {
   createEventSchema,
   rejectEventSchema,
+  eventQuerySchema,
+  bookTicketSchema,
 } from "../validation/event.validation.js";
 
 // Organizer: create a draft
@@ -121,16 +125,86 @@ export async function rejectEvent(req, res) {
 }
 
 // Public: list approved events (basic version — search/filter comes in Milestone 3)
+// Public: list approved events, with optional search/filter
 export async function getApprovedEvents(req, res) {
-  const events = await Event.find({ status: "approved" }).sort({
-    eventDate: 1,
-  });
+  const parsed = eventQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.errors[0].message });
+  }
+  const { category, search, minPrice, maxPrice } = parsed.data;
+
+  const filter = { status: "approved" };
+  if (category) filter.category = category;
+  if (search) filter.$text = { $search: search };
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    filter["ticketTiers.price"] = {};
+    if (minPrice !== undefined) filter["ticketTiers.price"].$gte = minPrice;
+    if (maxPrice !== undefined) filter["ticketTiers.price"].$lte = maxPrice;
+  }
+
+  const events = await Event.find(filter)
+    .sort({ eventDate: 1 })
+    .populate("organizerId", "name");
   res.json(events);
 }
 
 // Public: single event detail
 export async function getEventById(req, res) {
-  const event = await Event.findOne({ _id: req.params.id, status: "approved" });
+  const event = await Event.findOne({
+    _id: req.params.id,
+    status: "approved",
+  }).populate("organizerId", "name");
   if (!event) return res.status(404).json({ error: "Event not found" });
   res.json(event);
+}
+
+// Customer: toggle favorite/save on an event
+export async function toggleFavorite(req, res) {
+  const event = await Event.findOne({ _id: req.params.id, status: "approved" });
+  if (!event) return res.status(404).json({ error: "Event not found" });
+
+  const user = await User.findById(req.user.userId);
+  const idx = user.favorites.findIndex((id) => id.toString() === event._id.toString());
+
+  if (idx === -1) {
+    user.favorites.push(event._id);
+  } else {
+    user.favorites.splice(idx, 1);
+  }
+  await user.save();
+
+  res.json({ favorited: idx === -1 });
+}
+
+// Customer: book ticket(s) for an event
+export async function bookTicket(req, res) {
+  const parsed = bookTicketSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.errors[0].message });
+  }
+  const { tierName, quantity } = parsed.data;
+
+  const event = await Event.findOne({ _id: req.params.id, status: "approved" });
+  if (!event) return res.status(404).json({ error: "Event not found" });
+
+  const tier = tierName
+    ? event.ticketTiers.find((t) => t.name === tierName)
+    : event.ticketTiers[0];
+  if (!tier) return res.status(400).json({ error: "Ticket tier not found" });
+  if (tier.remainingCapacity < quantity) {
+    return res.status(400).json({ error: "Not enough tickets remaining" });
+  }
+
+  tier.remainingCapacity -= quantity;
+  await event.save();
+
+  const order = await Order.create({
+    userId: req.user.userId,
+    eventId: event._id,
+    tierName: tier.name,
+    quantity,
+    totalPrice: tier.price * quantity,
+  });
+
+  res.status(201).json(order);
 }

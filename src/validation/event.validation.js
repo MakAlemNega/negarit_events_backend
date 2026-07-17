@@ -39,3 +39,15 @@ export const createEventSchema = z.object({
 export const rejectEventSchema = z.object({
   rejectionReason: z.string().min(3, "A rejection reason is required"),
 });
+
+export const bookTicketSchema = z.object({
+  tierName: z.string().min(1).optional(),
+  quantity: z.coerce.number().int().min(1).default(1),
+});
+
+export const eventQuerySchema = z.object({
+  category: z.enum(["Music", "Tech", "Food & Drink", "Art", "Sports", "Networking", "Comedy", "Film", "Wellness", "Dance", "Business"]).optional(),
+  search: z.string().min(1).optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+});
