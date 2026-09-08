@@ -1,0 +1,14 @@
+### Testing the POST /api/events endpoint
+POST http://localhost:7777/api/events
+Content-Type: application/json
+
+{
+  "title": "Addis Tech Meetup",
+  "description": "A meetup for developers in Addis Ababa",
+  "date": "2026-10-15",
+  "location": "Addis Ababa",
+  "capacity": 50
+}
+
+### Testing the GET /api/events/:id endpoint
+GET http://localhost:7777/api/events/64e8f1b2c9a1f2b3d4e5f6a7
