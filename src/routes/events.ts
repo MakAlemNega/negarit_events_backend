@@ -53,4 +53,17 @@ eventRouter.put("/:id", async (req: Request, res: Response) => {
   });
 });
 
+eventRouter.delete("/:id", async (req: Request, res: Response) => {
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) {
+        return res.status(404).json({
+            message: "Event not found",
+        });
+    }
+    res.status(200).json({
+        message: "Event deleted successfully",
+        data: event,
+    });
+});
+
 module.exports = eventRouter;
