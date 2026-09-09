@@ -2,6 +2,7 @@ import Express = require("express");
 import type { Request, Response } from "express";
 
 const Event = require("../models/event");
+const mongoose = require("mongoose");
 const eventRouter = Express.Router();
 
 eventRouter.get("/", async (_req: Request, res: Response) => {
@@ -37,6 +38,12 @@ eventRouter.post("/", async (req: Request, res: Response) => {
 });
 
 eventRouter.get("/:id", async (req: Request, res: Response) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+      message: "Invalid event ID",
+    });
+  }
+
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -57,6 +64,11 @@ eventRouter.get("/:id", async (req: Request, res: Response) => {
 });
 
 eventRouter.put("/:id", async (req: Request, res: Response) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+      message: "Invalid event ID",
+    });
+  }
   try {
     const { title, description, date, location, capacity } = req.body;
     const event = await Event.findByIdAndUpdate(
@@ -82,6 +94,11 @@ eventRouter.put("/:id", async (req: Request, res: Response) => {
 });
 
 eventRouter.delete("/:id", async (req: Request, res: Response) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+      message: "Invalid event ID",
+    });
+  }
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) {
