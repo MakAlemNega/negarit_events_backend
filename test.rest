@@ -1,3 +1,10 @@
+### Testing the GET /api/events endpoint
+GET  http://localhost:7777/api/events
+
+### Testing the GET /api/events/:id endpoint with a non-existent ID
+GET http://localhost:7777/api/events/123
+
+
 ### Testing the POST /api/events endpoint
 POST http://localhost:7777/api/events
 Content-Type: application/json
@@ -12,3 +19,18 @@ Content-Type: application/json
 
 ### Testing the GET /api/events/:id endpoint
 GET http://localhost:7777/api/events/64e8f1b2c9a1f2b3d4e5f6a7
+
+### Testing the POST/PUT /api/events/:id endpoint
+PUT http://localhost:7777/api/events/6aa0758957ed9c7cafd915d0
+Content-Type: application/json
+
+{
+  "title": "Updated Addis Tech Meetup",
+  "description": "An updated meetup for developers in Addis Ababa",
+  "date": "2026-10-20",
+  "location": "Addis Ababa",
+  "capacity": 100
+}
+
+### Testing the DELETE /api/events/:id endpoint
+DELETE http://localhost:7777/api/events/6aa075cf57ed9c7cafd915d1
