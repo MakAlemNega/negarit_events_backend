@@ -1,6 +1,14 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const eventSchema = new mongoose.Schema({
+interface IEvent {
+  title: string;
+  description: string;
+  date: Date;
+  location: string;
+  capacity: number;
+}
+
+const eventSchema = new Schema<IEvent>({
   title: {
     type: String,
     required: true,
@@ -23,4 +31,6 @@ const eventSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Event", eventSchema);
+const Event = model<IEvent>("Event", eventSchema);
+
+export { Event };

@@ -1,7 +1,8 @@
 import Express = require("express");
 import type { Request, Response } from "express";
+import {eventSchema} from "../validations/event";
 
-const Event = require("../models/event");
+import { Event } from "../models/event";
 const mongoose = require("mongoose");
 const eventRouter = Express.Router();
 
@@ -23,7 +24,14 @@ eventRouter.get("/", async (_req: Request, res: Response) => {
 eventRouter.post("/", async (req: Request, res: Response) => {
   try {
     const { title, description, date, location, capacity } = req.body;
-    const event = new Event({ title, description, date, location, capacity });
+    const validatedEvent = eventSchema.safeParse({ title, description, date, location, capacity });
+    if (!validatedEvent.success) {
+      return res.status(400).json({
+        message: "Invalid event data",
+        error: validatedEvent.error.flatten(),
+      });
+    }
+    const event = new Event(validatedEvent.data);
     await event.save();
     res.status(201).json({
       message: "Event created successfully",
@@ -71,9 +79,16 @@ eventRouter.put("/:id", async (req: Request, res: Response) => {
   }
   try {
     const { title, description, date, location, capacity } = req.body;
+    const validatedEvent = eventSchema.safeParse({ title, description, date, location, capacity });
+    if (!validatedEvent.success) {
+      return res.status(400).json({
+        message: "Invalid event data",
+        error: validatedEvent.error.flatten(),
+      });
+    }
     const event = await Event.findByIdAndUpdate(
       req.params.id,
-      { title, description, date, location, capacity },
+      validatedEvent.data,
       { new: true },
     );
     if (!event) {
