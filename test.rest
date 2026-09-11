@@ -21,16 +21,10 @@ Content-Type: application/json
 GET http://localhost:7777/api/events/64e8f1b2c9a1f2b3d4e5f6a7
 
 ### Testing the POST/PUT /api/events/:id endpoint
-PUT http://localhost:7777/api/events/6aa15366295f47097bfdbc69
+PUT http://localhost:7777/api/events/6aa42ca57581c56188121a6d
 Content-Type: application/json
 
-{
-  "title": "Addis Car Meetup V0.2",
-  "description": "An updated meetup for car lovers in Addis Ababa",
-  "date": "2026-10-20",
-  "location": "Addis Ababa",
-  "capacity": 99
-}
+{}
 
 ### Testing the DELETE /api/events/:id endpoint
 DELETE http://localhost:7777/api/events/6aa0758957ed9c7cafd915d0

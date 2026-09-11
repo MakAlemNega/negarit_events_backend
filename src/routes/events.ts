@@ -1,9 +1,10 @@
 import Express = require("express");
 import type { Request, Response } from "express";
-import {eventSchema} from "../validations/event";
+import { eventSchema } from "../validations/event";
+import { updateEventSchema } from "../validations/event";
 
 import { Event } from "../models/event";
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const eventRouter = Express.Router();
 
 eventRouter.get("/", async (_req: Request, res: Response) => {
@@ -24,7 +25,13 @@ eventRouter.get("/", async (_req: Request, res: Response) => {
 eventRouter.post("/", async (req: Request, res: Response) => {
   try {
     const { title, description, date, location, capacity } = req.body;
-    const validatedEvent = eventSchema.safeParse({ title, description, date, location, capacity });
+    const validatedEvent = eventSchema.safeParse({
+      title,
+      description,
+      date,
+      location,
+      capacity,
+    });
     if (!validatedEvent.success) {
       return res.status(400).json({
         message: "Invalid event data",
@@ -46,14 +53,20 @@ eventRouter.post("/", async (req: Request, res: Response) => {
 });
 
 eventRouter.get("/:id", async (req: Request, res: Response) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  const { id } = req.params;
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      message: "Invalid event ID",
+    });
+  }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
       message: "Invalid event ID",
     });
   }
 
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(id);
     if (!event) {
       return res.status(404).json({
         message: "Event not found",
@@ -72,25 +85,35 @@ eventRouter.get("/:id", async (req: Request, res: Response) => {
 });
 
 eventRouter.put("/:id", async (req: Request, res: Response) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  const { id } = req.params;
+  if (typeof id !== "string") {
     return res.status(400).json({
       message: "Invalid event ID",
     });
   }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      message: "Invalid event ID",
+    });
+  }
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      message: "Request body is empty",
+    });
+  }
+
   try {
-    const { title, description, date, location, capacity } = req.body;
-    const validatedEvent = eventSchema.safeParse({ title, description, date, location, capacity });
+    const validatedEvent = updateEventSchema.safeParse(req.body);
     if (!validatedEvent.success) {
       return res.status(400).json({
         message: "Invalid event data",
         error: validatedEvent.error.flatten(),
       });
     }
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      validatedEvent.data,
-      { new: true },
-    );
+    const event = await Event.findByIdAndUpdate(id, validatedEvent.data, {
+      new: true,
+    });
     if (!event) {
       return res.status(404).json({
         message: "Event not found",
@@ -109,13 +132,19 @@ eventRouter.put("/:id", async (req: Request, res: Response) => {
 });
 
 eventRouter.delete("/:id", async (req: Request, res: Response) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  const { id } = req.params;
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      message: "Invalid event ID",
+    });
+  }
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
       message: "Invalid event ID",
     });
   }
   try {
-    const event = await Event.findByIdAndDelete(req.params.id);
+    const event = await Event.findByIdAndDelete(id);
     if (!event) {
       return res.status(404).json({
         message: "Event not found",

@@ -11,3 +11,5 @@ export const eventSchema = z.object({
   location: z.string().min(4, "Location must be at least 4 characters long"),
   capacity: z.number().int().positive("Capacity must be a positive integer"),
 });
+
+export const updateEventSchema = eventSchema.partial();
