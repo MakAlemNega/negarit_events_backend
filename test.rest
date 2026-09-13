@@ -10,11 +10,11 @@ POST http://localhost:7777/api/events
 Content-Type: application/json
 
 {
-  "title": "Classic Cars Exhibition",
-  "description": "A meetup for car lovers in Addis",
+  "title": "New Year Concert",
+  "description": "A grand concert to celebrate the New Year with live performances.",
   "date": "2026-10-20",
   "location": "Addis Ababa",
-  "capacity": 150
+  "capacity": 1500
 }
 
 ### Testing the GET /api/events/:id endpoint

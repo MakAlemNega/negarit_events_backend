@@ -6,4 +6,4 @@ router.get("/", (req: Request, res: Response) => {
   res.send("The Negarit Events API is Working Successfully!");
 });
 
-module.exports = router;
+export default router;

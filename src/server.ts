@@ -1,9 +1,9 @@
 import "dotenv/config";
 import Express = require("express");
 
-const connectDB = require("./db");
-const router = require("./routes/index");
-const eventRouter = require("./routes/events");
+import connectDB from "./db";
+import router from "./routes/index";
+import eventRouter from "./routes/events";
 const app = Express();
 const PORT = 7777;
 
